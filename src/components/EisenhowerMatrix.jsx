@@ -1,0 +1,226 @@
+import React, { useState } from "react";
+import Quadrant from "./Quadrant";
+import { DragDropContext, Droppable } from "@hello-pangea/dnd";
+import TaskModal from "./TaskModal";
+import Confetti from "react-confetti";
+
+const QUADRANTS = [
+  {
+    key: "not-urgent-important",
+    color: "bg-blue-50",
+    counterColor: "bg-blue-200 text-blue-700",
+  },
+  {
+    key: "urgent-important",
+    color: "bg-green-50",
+    counterColor: "bg-green-200 text-green-700",
+  },
+  {
+    key: "not-urgent-not-important",
+    color: "bg-gray-50",
+    counterColor: "bg-gray-200 text-gray-700",
+  },
+  {
+    key: "urgent-not-important",
+    color: "bg-yellow-50",
+    counterColor: "bg-yellow-200 text-yellow-700",
+  },
+];
+
+const initialTasks = {
+  "not-urgent-important": [
+    { id: 1, text: "Task 1", due: "2025-05-25", completed: false },
+    { id: 2, text: "Task 2", due: null, completed: false },
+  ],
+  "urgent-important": [
+    { id: 7, text: "Task 7", due: "2025-05-01", completed: false },
+    { id: 8, text: "Task 8", due: "2025-04-30", completed: false },
+  ],
+  "not-urgent-not-important": [
+    { id: 4, text: "Task 4", due: null, completed: true },
+    { id: 5, text: "Task 5", due: null, completed: false },
+    { id: 6, text: "Task 6", due: null, completed: false },
+  ],
+  "urgent-not-important": [
+    { id: 10, text: "Task 10", due: null, completed: false },
+    { id: 12, text: "Task 12", due: "2025-07-02", completed: false },
+  ],
+};
+
+function getQuadrantLabel(key) {
+  switch (key) {
+    case "not-urgent-important": return "Not Urgent & Important";
+    case "urgent-important": return "Urgent & Important";
+    case "not-urgent-not-important": return "Not Urgent & Not Important";
+    case "urgent-not-important": return "Urgent & Not Important";
+    default: return "";
+  }
+}
+
+export default function EisenhowerMatrix() {
+  const [tasks, setTasks] = useState(initialTasks);
+  const [modal, setModal] = useState({ open: false, mode: "add", task: null, quadrant: null });
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [fadeConfetti, setFadeConfetti] = useState(false);
+
+  function onDragEnd(result) {
+    const { source, destination } = result;
+    if (!destination) return;
+    if (
+      source.droppableId === destination.droppableId &&
+      source.index === destination.index
+    ) {
+      return;
+    }
+    const sourceTasks = Array.from(tasks[source.droppableId]);
+    const [removed] = sourceTasks.splice(source.index, 1);
+    const destTasks = Array.from(tasks[destination.droppableId]);
+    destTasks.splice(destination.index, 0, removed);
+    setTasks((prev) => ({
+      ...prev,
+      [source.droppableId]: sourceTasks,
+      [destination.droppableId]: destTasks,
+    }));
+  }
+
+  function handleAdd(quadrantKey) {
+    setModal({ open: true, mode: "add", task: null, quadrant: quadrantKey });
+  }
+
+  function handleEdit(task, quadrantKey) {
+    setModal({ open: true, mode: "edit", task: { ...task, quadrant: quadrantKey }, quadrant: quadrantKey });
+  }
+
+  function handleModalClose() {
+    setModal({ open: false, mode: "add", task: null, quadrant: null });
+  }
+
+  function handleModalSave(task) {
+    if (modal.mode === "add") {
+      setTasks((prev) => ({
+        ...prev,
+        [task.quadrant]: [
+          ...prev[task.quadrant],
+          { ...task, id: Date.now(), completed: false },
+        ],
+      }));
+    } else if (modal.mode === "edit") {
+      // If quadrant changed, move task
+      setTasks((prev) => {
+        const oldQuadrant = modal.task.quadrant;
+        const newQuadrant = task.quadrant;
+        let newTasks = { ...prev };
+        // Remove from old
+        newTasks[oldQuadrant] = newTasks[oldQuadrant].filter((t) => t.id !== modal.task.id);
+        // Add to new
+        newTasks[newQuadrant] = [
+          ...newTasks[newQuadrant],
+          { ...task, completed: modal.task.completed || false },
+        ];
+        return newTasks;
+      });
+    }
+    handleModalClose();
+  }
+
+  function handleModalDelete() {
+    setTasks((prev) => {
+      const q = modal.task.quadrant;
+      return {
+        ...prev,
+        [q]: prev[q].filter((t) => t.id !== modal.task.id),
+      };
+    });
+    handleModalClose();
+  }
+
+  function handleModalComplete() {
+    setTasks((prev) => {
+      const q = modal.task.quadrant;
+      return {
+        ...prev,
+        [q]: prev[q].filter((t) => t.id !== modal.task.id),
+      };
+    });
+    handleModalClose();
+    setFadeConfetti(false);
+    setShowConfetti(true);
+    setTimeout(() => setFadeConfetti(true), 3000); // Start fade after 3s
+    setTimeout(() => setShowConfetti(false), 5000); // Hide after 5s
+  }
+
+  return (
+    <div className="w-screen h-screen flex items-stretch justify-stretch bg-white relative">
+      {showConfetti && (
+        <div className="pointer-events-none fixed inset-0 z-50">
+          <Confetti width={window.innerWidth} height={window.innerHeight} numberOfPieces={800} gravity={0.8} recycle={false} />
+          <div
+            className={`absolute inset-0 transition-opacity duration-2000 ${fadeConfetti ? 'opacity-0' : 'opacity-100'}`}
+            style={{ background: 'transparent' }}
+          />
+        </div>
+      )}
+      <DragDropContext onDragEnd={onDragEnd}>
+        <div className="grid grid-cols-[60px_1fr_1fr] grid-rows-[60px_1fr_1fr] w-full h-full">
+          {/* Top-left empty cell */}
+          <div></div>
+          {/* Top labels */}
+          <div className="flex items-center justify-center border-b border-l border-gray-300 font-bold text-xl bg-white">Not Urgent</div>
+          <div className="flex items-center justify-center border-b border-r border-gray-300 font-bold text-xl bg-white">Urgent</div>
+          {/* Left labels and quadrants */}
+          <div className="flex items-center justify-center border-b border-l border-gray-300 font-bold text-xl bg-white rotate-[-90deg]">Important</div>
+          {QUADRANTS.slice(0, 2).map((q) => (
+            <Droppable droppableId={q.key} key={q.key}>
+              {(provided, snapshot) => (
+                <Quadrant
+                  color={q.color}
+                  counterColor={q.counterColor}
+                  tasks={tasks[q.key] || []}
+                  completedCount={tasks[q.key]?.filter(t => t.completed).length || 0}
+                  droppableProps={provided.droppableProps}
+                  innerRef={provided.innerRef}
+                  isDraggingOver={snapshot.isDraggingOver}
+                  onAdd={() => handleAdd(q.key)}
+                  onTaskClick={(task) => handleEdit(task, q.key)}
+                >
+                  {provided.placeholder}
+                </Quadrant>
+              )}
+            </Droppable>
+          ))}
+          <div className="flex items-center justify-center border-t border-l border-gray-300 font-bold text-xl bg-white rotate-[-90deg]">Not Important</div>
+          {QUADRANTS.slice(2, 4).map((q) => (
+            <Droppable droppableId={q.key} key={q.key}>
+              {(provided, snapshot) => (
+                <Quadrant
+                  color={q.color}
+                  counterColor={q.counterColor}
+                  tasks={tasks[q.key] || []}
+                  completedCount={tasks[q.key]?.filter(t => t.completed).length || 0}
+                  droppableProps={provided.droppableProps}
+                  innerRef={provided.innerRef}
+                  isDraggingOver={snapshot.isDraggingOver}
+                  onAdd={() => handleAdd(q.key)}
+                  onTaskClick={(task) => handleEdit(task, q.key)}
+                >
+                  {provided.placeholder}
+                </Quadrant>
+              )}
+            </Droppable>
+          ))}
+        </div>
+      </DragDropContext>
+      <TaskModal
+        key={modal.mode + (modal.task?.id || modal.quadrant || 'add')}
+        open={modal.open}
+        onClose={handleModalClose}
+        onSave={handleModalSave}
+        onDelete={handleModalDelete}
+        onComplete={handleModalComplete}
+        initialTask={modal.mode === 'add' ? {} : modal.task}
+        mode={modal.mode}
+        defaultQuadrant={modal.quadrant}
+      />
+    </div>
+  );
+} 
