@@ -71,8 +71,9 @@ export default function TaskModal({
           className="space-y-4"
         >
           <div>
-            <label className="block text-[10px] font-medium mb-1 text-gray-500">Task</label>
+            <label htmlFor="task-text" className="block text-[10px] font-medium mb-1 text-gray-500">Task</label>
             <input
+              id="task-text"
               className="w-full rounded-xl px-3 py-1.5 bg-gray-100 text-gray-800 text-[10px] placeholder-gray-400 placeholder:text-[10px] focus:outline-none focus:ring-2 focus:ring-blue-300 transition"
               value={text}
               onChange={e => setText(e.target.value)}
@@ -82,8 +83,9 @@ export default function TaskModal({
             />
           </div>
           <div>
-            <label className="block text-[10px] font-medium mb-1 text-gray-500">Due Date</label>
+            <label htmlFor="task-due" className="block text-[10px] font-medium mb-1 text-gray-500">Due Date</label>
             <input
+              id="task-due"
               type="date"
               className="w-full rounded-xl px-3 py-1.5 bg-gray-100 text-gray-800 text-[10px] placeholder-gray-400 placeholder:text-[10px] focus:outline-none focus:ring-2 focus:ring-blue-300 transition"
               value={due}
@@ -91,8 +93,9 @@ export default function TaskModal({
             />
           </div>
           <div>
-            <label className="block text-[10px] font-medium mb-1 text-gray-500">Quadrant</label>
+            <label htmlFor="task-quadrant" className="block text-[10px] font-medium mb-1 text-gray-500">Quadrant</label>
             <select
+              id="task-quadrant"
               className="w-full rounded-xl px-3 py-1.5 bg-gray-100 text-gray-800 text-[10px] focus:outline-none focus:ring-2 focus:ring-blue-300 transition"
               value={quadrant}
               onChange={e => setQuadrant(e.target.value)}

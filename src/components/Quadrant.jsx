@@ -14,13 +14,14 @@ export default function Quadrant({
   const visibleTasks = tasks.filter(t => !t.completed);
   return (
     <div
-      className="relative flex flex-col h-full w-full bg-white/70 backdrop-blur-xl border border-gray-200 rounded-2xl shadow-lg p-3 gap-1.5 transition-all duration-300 overflow-hidden"
+      className="relative flex flex-col h-full w-full bg-white/70 backdrop-blur-xl border border-gray-200 rounded-2xl shadow-lg p-3 transition-all duration-300 overflow-hidden"
     >
       {/* Completed tasks counter badge, styled like previous tasks counter */}
       <span className="absolute top-2 right-3 z-10 bg-gray-100 text-gray-500 text-xs font-medium rounded-full px-2 py-0.5 shadow border border-gray-200 select-none">
         {completedCount} ✓
       </span>
-      <div className="flex-1 flex flex-col gap-0.5 pt-4">
+      {/* Scrollable task list */}
+      <div className="flex-1 flex flex-col gap-0.5 pt-4 overflow-y-auto min-h-0 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
         {visibleTasks.map((task, idx) => (
           <React.Fragment key={task.id}>
             <TaskItem task={task} onClick={() => onTaskClick(task)} />
@@ -28,13 +29,16 @@ export default function Quadrant({
           </React.Fragment>
         ))}
       </div>
-      <button
-        className="mt-2 px-4 py-1.5 rounded-full bg-blue-500 text-white font-semibold shadow hover:bg-blue-600 transition w-fit self-center text-xs"
-        onClick={onAdd}
-        type="button"
-      >
-        + Add Task
-      </button>
+      {/* Add Task button always at the bottom */}
+      <div className="mt-2 flex-shrink-0 flex justify-center">
+        <button
+          className="px-4 py-1.5 rounded-full bg-blue-500 text-white font-semibold shadow hover:bg-blue-600 transition w-fit text-xs"
+          onClick={onAdd}
+          type="button"
+        >
+          + Add Task
+        </button>
+      </div>
       {children}
     </div>
   );
