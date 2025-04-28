@@ -1,0 +1,13 @@
+name = "tasks-dahotre-org"
+compatibility_date = "2024-06-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "tasks_dev"
+database_id = "8bec2829-498d-44e0-884b-ed0829d9cca2"
+
+[env.production]
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "tasks_prod"
+database_id = "beec98a9-bf4d-449d-b819-c9c9b7f92f9c" 
