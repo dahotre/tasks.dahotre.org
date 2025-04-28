@@ -28,9 +28,9 @@ export default function TaskItem({ task, onClick }) {
       onClick={onClick}
       tabIndex={0}
       role="button"
-      aria-label={task.text}
+      aria-label={task.title}
     >
-      <span className="flex-1 text-sm font-medium" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>{task.text}</span>
+      <span className="flex-1 text-sm font-medium" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>{task.title}</span>
       {task.due && (
         <span className={`ml-2 px-1.5 py-0 rounded-lg text-[10px] font-medium border ${getDueColor(task.due)}`}>
           {formatDue(task.due)}

@@ -28,21 +28,21 @@ const QUADRANTS = [
 
 const initialTasks = {
   "not-urgent-important": [
-    { id: 1, text: "Task 1", due: "2025-05-25", completed: false },
-    { id: 2, text: "Task 2", due: null, completed: false },
+    { id: 1, title: "Task 1", due: "2025-05-25", completed: false },
+    { id: 2, title: "Task 2", due: null, completed: false },
   ],
   "urgent-important": [
-    { id: 7, text: "Task 7", due: "2025-05-01", completed: false },
-    { id: 8, text: "Task 8", due: "2025-04-30", completed: false },
+    { id: 7, title: "Task 7", due: "2025-05-01", completed: false },
+    { id: 8, title: "Task 8", due: "2025-04-30", completed: false },
   ],
   "not-urgent-not-important": [
-    { id: 4, text: "Task 4", due: null, completed: true },
-    { id: 5, text: "Task 5", due: null, completed: false },
-    { id: 6, text: "Task 6", due: null, completed: false },
+    { id: 4, title: "Task 4", due: null, completed: true },
+    { id: 5, title: "Task 5", due: null, completed: false },
+    { id: 6, title: "Task 6", due: null, completed: false },
   ],
   "urgent-not-important": [
-    { id: 10, text: "Task 10", due: null, completed: false },
-    { id: 12, text: "Task 12", due: "2025-07-02", completed: false },
+    { id: 10, title: "Task 10", due: null, completed: false },
+    { id: 12, title: "Task 12", due: "2025-07-02", completed: false },
   ],
 };
 
@@ -80,11 +80,10 @@ export default function EisenhowerMatrix() {
         ...prev,
         [task.quadrant]: [
           ...prev[task.quadrant],
-          { ...task, id: Date.now(), completed: false },
+          { ...task, id: Date.now(), completed: false, title: task.title || task.text },
         ],
       }));
     } else if (modal.mode === "edit") {
-      // If quadrant changed, move task
       setTasks((prev) => {
         const oldQuadrant = modal.task.quadrant;
         const newQuadrant = task.quadrant;
@@ -94,7 +93,7 @@ export default function EisenhowerMatrix() {
         // Add to new
         newTasks[newQuadrant] = [
           ...newTasks[newQuadrant],
-          { ...task, completed: modal.task.completed || false },
+          { ...task, completed: modal.task.completed || false, title: task.title || task.text },
         ];
         return newTasks;
       });
@@ -103,14 +102,17 @@ export default function EisenhowerMatrix() {
   }
 
   function handleModalDelete() {
+    const taskToDelete = modal.task;
     setTasks((prev) => {
-      const q = modal.task.quadrant;
-      return {
+      const q = taskToDelete.quadrant;
+      const newTasks = {
         ...prev,
-        [q]: prev[q].filter((t) => t.id !== modal.task.id),
+        [q]: prev[q].filter((t) => t.id !== taskToDelete.id),
       };
+      console.log('Tasks after delete:', newTasks);
+      return newTasks;
     });
-    handleModalClose();
+    setModal({ open: false, mode: 'add', task: null, quadrant: null });
   }
 
   function handleModalComplete() {

@@ -18,7 +18,7 @@ export default function TaskModal({
   defaultQuadrant,
 }) {
   initialTask = initialTask || {};
-  const [text, setText] = useState("");
+  const [title, setTitle] = useState("");
   const [due, setDue] = useState("");
   const [quadrant, setQuadrant] = useState(defaultQuadrant || QUADRANT_OPTIONS[0].value);
 
@@ -34,11 +34,11 @@ export default function TaskModal({
   useEffect(() => {
     if (open) {
       if (mode === "edit") {
-        setText(initialTask.text || "");
+        setTitle(initialTask.title || "");
         setDue(initialTask.due || "");
         setQuadrant(initialTask.quadrant || defaultQuadrant || QUADRANT_OPTIONS[0].value);
       } else {
-        setText("");
+        setTitle("");
         setDue("");
         setQuadrant(defaultQuadrant || QUADRANT_OPTIONS[0].value);
       }
@@ -63,7 +63,7 @@ export default function TaskModal({
             e.preventDefault();
             onSave({
               ...initialTask,
-              text,
+              title,
               due,
               quadrant,
             });
@@ -71,12 +71,12 @@ export default function TaskModal({
           className="space-y-4"
         >
           <div>
-            <label htmlFor="task-text" className="block text-[10px] font-medium mb-1 text-gray-500">Task</label>
+            <label htmlFor="task-title" className="block text-[10px] font-medium mb-1 text-gray-500">Task</label>
             <input
-              id="task-text"
+              id="task-title"
               className="w-full rounded-xl px-3 py-1.5 bg-gray-100 text-gray-800 text-[10px] placeholder-gray-400 placeholder:text-[10px] focus:outline-none focus:ring-2 focus:ring-blue-300 transition"
-              value={text}
-              onChange={e => setText(e.target.value)}
+              value={title}
+              onChange={e => setTitle(e.target.value)}
               required
               placeholder="Enter task description"
               autoComplete="off"

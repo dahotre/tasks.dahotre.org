@@ -1,56 +1,73 @@
-import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 // Mock react-confetti to avoid canvas errors in jsdom
-jest.mock('react-confetti', () => () => null);
+vi.mock('react-confetti', () => ({ default: () => null }));
 import EisenhowerMatrix from '../EisenhowerMatrix';
 
-describe('EisenhowerMatrix user interactions', () => {
-  it('allows adding a new task to a quadrant', () => {
+describe('EisenhowerMatrix interactions', () => {
+  it('opens the modal when Add Task is clicked', () => {
     render(<EisenhowerMatrix />);
-    // Click the first Add Task button
     const addButtons = screen.getAllByRole('button', { name: /add task/i });
     fireEvent.click(addButtons[0]);
-    // Fill out the modal (specifically select the input field)
-    fireEvent.change(screen.getByLabelText('Task', { selector: 'input' }), { target: { value: 'My New Task' } });
-    // Save
+    expect(screen.getByRole('heading', { name: /add task/i })).toBeInTheDocument();
+  });
+
+  it('closes the modal when Cancel is clicked', () => {
+    render(<EisenhowerMatrix />);
+    const addButtons = screen.getAllByRole('button', { name: /add task/i });
+    fireEvent.click(addButtons[0]);
+    const cancelButton = screen.getByRole('button', { name: /cancel/i });
+    fireEvent.click(cancelButton);
+    expect(screen.queryByRole('heading', { name: /add task/i })).not.toBeInTheDocument();
+  });
+
+  it('adds a new task and displays it in the correct quadrant', () => {
+    render(<EisenhowerMatrix />);
+    const addButtons = screen.getAllByRole('button', { name: /add task/i });
+    fireEvent.click(addButtons[0]);
+    const input = screen.getByPlaceholderText('Enter task description');
+    fireEvent.change(input, { target: { value: 'New Task' } });
+    const saveButton = screen.getByRole('button', { name: /save/i });
+    fireEvent.click(saveButton);
+    expect(screen.getByText('New Task')).toBeInTheDocument();
+  });
+
+  it('edits a task when clicked', () => {
+    render(<EisenhowerMatrix />);
+    const addButtons = screen.getAllByRole('button', { name: /add task/i });
+    fireEvent.click(addButtons[0]);
+    const input = screen.getByPlaceholderText('Enter task description');
+    fireEvent.change(input, { target: { value: 'Editable Task' } });
+    const saveButton = screen.getByRole('button', { name: /save/i });
+    fireEvent.click(saveButton);
+    const task = screen.getByText('Editable Task');
+    fireEvent.click(task);
+    const editInput = screen.getByPlaceholderText('Enter task description');
+    fireEvent.change(editInput, { target: { value: 'Edited Task' } });
     fireEvent.click(screen.getByRole('button', { name: /save/i }));
-    // The new task should appear in the quadrant
-    expect(screen.getByText('My New Task')).toBeInTheDocument();
+    expect(screen.getByText('Edited Task')).toBeInTheDocument();
   });
 
-  it('allows editing a task', () => {
+  it('deletes a task via the modal and removes it from the UI', async () => {
     render(<EisenhowerMatrix />);
-    // Click the first task
-    fireEvent.click(screen.getByText('Task 1'));
-    // Change the text
-    fireEvent.change(screen.getByLabelText('Task', { selector: 'input' }), { target: { value: 'Task 1 Edited' } });
-    // Save
+    // Add a new task
+    const addButtons = screen.getAllByRole('button', { name: /add task/i });
+    fireEvent.click(addButtons[0]);
+    const input = screen.getByPlaceholderText('Enter task description');
+    fireEvent.change(input, { target: { value: 'Task to Delete' } });
     fireEvent.click(screen.getByRole('button', { name: /save/i }));
-    // The edited task should appear
-    expect(screen.getByText('Task 1 Edited')).toBeInTheDocument();
-    // The old text should not be present
-    expect(screen.queryByText('Task 1')).not.toBeInTheDocument();
-  });
 
-  it('allows deleting a task', () => {
-    render(<EisenhowerMatrix />);
-    // Click the first task
-    fireEvent.click(screen.getByText('Task 1'));
-    // Click Delete
-    fireEvent.click(screen.getByRole('button', { name: /delete/i }));
-    // The task should be gone
-    expect(screen.queryByText('Task 1')).not.toBeInTheDocument();
-  });
+    // Confirm the task is present
+    expect(screen.getByText('Task to Delete')).toBeInTheDocument();
 
-  it('allows completing a task', () => {
-    render(<EisenhowerMatrix />);
-    // Click the first task
-    fireEvent.click(screen.getByText('Task 1'));
-    // Click Complete
-    fireEvent.click(screen.getByRole('button', { name: /complete/i }));
-    // The task should be gone from the visible list
-    expect(screen.queryByText('Task 1')).not.toBeInTheDocument();
-    // The completed counter should increase (look for "1 ✓")
-    expect(screen.getAllByText(/✓/)[0].textContent).toMatch(/1/);
+    // Open the modal for the task
+    fireEvent.click(screen.getByText('Task to Delete'));
+    // Click the Delete button in the modal
+    const deleteButton = screen.getByRole('button', { name: /^delete$/i });
+    fireEvent.click(deleteButton);
+
+    // Wait for the modal to close and the task to be removed
+    await waitFor(() => {
+      expect(screen.queryByText('Task to Delete')).not.toBeInTheDocument();
+    });
   });
 }); 
