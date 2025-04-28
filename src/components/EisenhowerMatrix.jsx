@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Quadrant from "./Quadrant";
 import TaskModal from "./TaskModal";
 import Confetti from "react-confetti";
@@ -57,10 +57,31 @@ function getQuadrantLabel(key) {
 }
 
 export default function EisenhowerMatrix() {
-  const [tasks, setTasks] = useState(initialTasks);
+  const [tasks, setTasks] = useState({});
+  const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState({ open: false, mode: "add", task: null, quadrant: null });
   const [showConfetti, setShowConfetti] = useState(false);
   const [fadeConfetti, setFadeConfetti] = useState(false);
+
+  // Fetch all tasks on mount
+  useEffect(() => {
+    fetchTasks();
+  }, []);
+
+  async function fetchTasks() {
+    setLoading(true);
+    const res = await fetch("/api/tasks");
+    const data = await res.json();
+    // Group by quadrant
+    const grouped = {};
+    for (const q of QUADRANTS) grouped[q.key] = [];
+    for (const t of data) {
+      grouped[t.quadrant] = grouped[t.quadrant] || [];
+      grouped[t.quadrant].push({ ...t, due: t.due_date });
+    }
+    setTasks(grouped);
+    setLoading(false);
+  }
 
   function handleAdd(quadrantKey) {
     setModal({ open: true, mode: "add", task: null, quadrant: quadrantKey });
@@ -74,57 +95,46 @@ export default function EisenhowerMatrix() {
     setModal({ open: false, mode: "add", task: null, quadrant: null });
   }
 
-  function handleModalSave(task) {
+  async function handleModalSave(task) {
     if (modal.mode === "add") {
-      setTasks((prev) => ({
-        ...prev,
-        [task.quadrant]: [
-          ...prev[task.quadrant],
-          { ...task, id: Date.now(), completed: false, title: task.title || task.text },
-        ],
-      }));
+      await fetch("/api/tasks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: task.title,
+          due_date: task.due,
+          quadrant: task.quadrant,
+        }),
+      });
     } else if (modal.mode === "edit") {
-      setTasks((prev) => {
-        const oldQuadrant = modal.task.quadrant;
-        const newQuadrant = task.quadrant;
-        let newTasks = { ...prev };
-        // Remove from old
-        newTasks[oldQuadrant] = newTasks[oldQuadrant].filter((t) => t.id !== modal.task.id);
-        // Add to new
-        newTasks[newQuadrant] = [
-          ...newTasks[newQuadrant],
-          { ...task, completed: modal.task.completed || false, title: task.title || task.text },
-        ];
-        return newTasks;
+      await fetch(`/api/tasks/${modal.task.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: task.title,
+          due_date: task.due,
+          quadrant: task.quadrant,
+          completed: modal.task.completed || false,
+        }),
       });
     }
+    await fetchTasks();
     handleModalClose();
   }
 
-  function handleModalDelete() {
-    const taskToDelete = modal.task;
-    setTasks((prev) => {
-      const q = taskToDelete.quadrant;
-      const newTasks = {
-        ...prev,
-        [q]: prev[q].filter((t) => t.id !== taskToDelete.id),
-      };
-      console.log('Tasks after delete:', newTasks);
-      return newTasks;
-    });
+  async function handleModalDelete() {
+    await fetch(`/api/tasks/${modal.task.id}`, { method: "DELETE" });
+    await fetchTasks();
     setModal({ open: false, mode: 'add', task: null, quadrant: null });
   }
 
-  function handleModalComplete() {
-    setTasks((prev) => {
-      const q = modal.task.quadrant;
-      return {
-        ...prev,
-        [q]: prev[q].map((t) =>
-          t.id === modal.task.id ? { ...t, completed: true } : t
-        ),
-      };
+  async function handleModalComplete() {
+    await fetch(`/api/tasks/${modal.task.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ completed: true }),
     });
+    await fetchTasks();
     handleModalClose();
     setFadeConfetti(false);
     setShowConfetti(true);
