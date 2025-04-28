@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import Quadrant from "./Quadrant";
-import { DragDropContext, Droppable } from "@hello-pangea/dnd";
 import TaskModal from "./TaskModal";
 import Confetti from "react-confetti";
 
@@ -63,26 +62,6 @@ export default function EisenhowerMatrix() {
   const [showConfetti, setShowConfetti] = useState(false);
   const [fadeConfetti, setFadeConfetti] = useState(false);
 
-  function onDragEnd(result) {
-    const { source, destination } = result;
-    if (!destination) return;
-    if (
-      source.droppableId === destination.droppableId &&
-      source.index === destination.index
-    ) {
-      return;
-    }
-    const sourceTasks = Array.from(tasks[source.droppableId]);
-    const [removed] = sourceTasks.splice(source.index, 1);
-    const destTasks = Array.from(tasks[destination.droppableId]);
-    destTasks.splice(destination.index, 0, removed);
-    setTasks((prev) => ({
-      ...prev,
-      [source.droppableId]: sourceTasks,
-      [destination.droppableId]: destTasks,
-    }));
-  }
-
   function handleAdd(quadrantKey) {
     setModal({ open: true, mode: "add", task: null, quadrant: quadrantKey });
   }
@@ -139,7 +118,9 @@ export default function EisenhowerMatrix() {
       const q = modal.task.quadrant;
       return {
         ...prev,
-        [q]: prev[q].filter((t) => t.id !== modal.task.id),
+        [q]: prev[q].map((t) =>
+          t.id === modal.task.id ? { ...t, completed: true } : t
+        ),
       };
     });
     handleModalClose();
@@ -160,56 +141,38 @@ export default function EisenhowerMatrix() {
           />
         </div>
       )}
-      <DragDropContext onDragEnd={onDragEnd}>
-        <div className="grid grid-cols-[16px_1fr_1fr] grid-rows-[16px_1fr_1fr] w-full h-full gap-2 p-2">
-          {/* Top-left empty cell */}
-          <div></div>
-          {/* Top headers - minimal space */}
-          <div className="flex items-center justify-center font-normal text-xs text-gray-500 tracking-wide bg-transparent p-0 m-0 h-[16px]">Not Urgent</div>
-          <div className="flex items-center justify-center font-normal text-xs text-gray-500 tracking-wide bg-transparent p-0 m-0 h-[16px]">Urgent</div>
-          {/* Left labels - minimal space */}
-          <div className="flex items-center justify-center h-full w-[16px] p-0 m-0"><span className="font-normal text-xs text-gray-500 tracking-wide origin-center rotate-[-90deg] whitespace-nowrap">Important</span></div>
-          {QUADRANTS.slice(0, 2).map((q) => (
-            <Droppable droppableId={q.key} key={q.key}>
-              {(provided, snapshot) => (
-                <Quadrant
-                  color={q.color}
-                  counterColor={q.counterColor}
-                  tasks={tasks[q.key] || []}
-                  completedCount={tasks[q.key]?.filter(t => t.completed).length || 0}
-                  droppableProps={provided.droppableProps}
-                  innerRef={provided.innerRef}
-                  isDraggingOver={snapshot.isDraggingOver}
-                  onAdd={() => handleAdd(q.key)}
-                  onTaskClick={(task) => handleEdit(task, q.key)}
-                >
-                  {provided.placeholder}
-                </Quadrant>
-              )}
-            </Droppable>
-          ))}
-          <div className="flex items-center justify-center h-full w-[16px] p-0 m-0"><span className="font-normal text-xs text-gray-500 tracking-wide origin-center rotate-[-90deg] whitespace-nowrap">Not Important</span></div>
-          {QUADRANTS.slice(2, 4).map((q) => (
-            <Droppable droppableId={q.key} key={q.key}>
-              {(provided, snapshot) => (
-                <Quadrant
-                  color={q.color}
-                  counterColor={q.counterColor}
-                  tasks={tasks[q.key] || []}
-                  completedCount={tasks[q.key]?.filter(t => t.completed).length || 0}
-                  droppableProps={provided.droppableProps}
-                  innerRef={provided.innerRef}
-                  isDraggingOver={snapshot.isDraggingOver}
-                  onAdd={() => handleAdd(q.key)}
-                  onTaskClick={(task) => handleEdit(task, q.key)}
-                >
-                  {provided.placeholder}
-                </Quadrant>
-              )}
-            </Droppable>
-          ))}
-        </div>
-      </DragDropContext>
+      <div className="grid grid-cols-[16px_1fr_1fr] grid-rows-[16px_1fr_1fr] w-full h-full gap-0.5 p-2">
+        {/* Top-left empty cell */}
+        <div></div>
+        {/* Top headers - minimal space, smallest padding */}
+        <div className="flex items-center justify-center font-normal text-[10px] text-gray-500 tracking-wide bg-transparent h-[10px]">Not Urgent</div>
+        <div className="flex items-center justify-center font-normal text-[10px] text-gray-500 tracking-wide bg-transparent h-[10px]">Urgent</div>
+        {/* Left labels - minimal space, smallest padding */}
+        <div className="flex items-center justify-center h-full w-[10px]"><span className="font-normal text-[10px] text-gray-500 tracking-wide origin-center rotate-[-90deg] whitespace-nowrap">Important</span></div>
+        {QUADRANTS.slice(0, 2).map((q) => (
+          <Quadrant
+            key={q.key}
+            color={q.color}
+            counterColor={q.counterColor}
+            tasks={tasks[q.key] || []}
+            completedCount={tasks[q.key]?.filter(t => t.completed).length || 0}
+            onAdd={() => handleAdd(q.key)}
+            onTaskClick={(task) => handleEdit(task, q.key)}
+          />
+        ))}
+        <div className="flex items-center justify-center h-full w-[10px]"><span className="font-normal text-[10px] text-gray-500 tracking-wide origin-center rotate-[-90deg] whitespace-nowrap">Not Important</span></div>
+        {QUADRANTS.slice(2, 4).map((q) => (
+          <Quadrant
+            key={q.key}
+            color={q.color}
+            counterColor={q.counterColor}
+            tasks={tasks[q.key] || []}
+            completedCount={tasks[q.key]?.filter(t => t.completed).length || 0}
+            onAdd={() => handleAdd(q.key)}
+            onTaskClick={(task) => handleEdit(task, q.key)}
+          />
+        ))}
+      </div>
       <TaskModal
         key={modal.mode + (modal.task?.id || modal.quadrant || 'add')}
         open={modal.open}
