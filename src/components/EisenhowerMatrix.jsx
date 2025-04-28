@@ -161,14 +161,14 @@ export default function EisenhowerMatrix() {
         </div>
       )}
       <DragDropContext onDragEnd={onDragEnd}>
-        <div className="grid grid-cols-[60px_1fr_1fr] grid-rows-[60px_1fr_1fr] w-full h-full">
+        <div className="grid grid-cols-[24px_1fr_1fr] grid-rows-[24px_1fr_1fr] w-full h-full">
           {/* Top-left empty cell */}
           <div></div>
-          {/* Top labels */}
-          <div className="flex items-center justify-center border-b border-l border-gray-300 font-bold text-xl bg-white">Not Urgent</div>
-          <div className="flex items-center justify-center border-b border-r border-gray-300 font-bold text-xl bg-white">Urgent</div>
-          {/* Left labels and quadrants */}
-          <div className="flex items-center justify-center border-b border-l border-gray-300 font-bold text-xl bg-white rotate-[-90deg]">Important</div>
+          {/* Top headers - even smaller, no extra padding */}
+          <div className="flex items-center justify-center border-b border-l border-gray-300 font-normal text-xs bg-white p-0 m-0 h-[24px]">Not Urgent</div>
+          <div className="flex items-center justify-center border-b border-r border-gray-300 font-normal text-xs bg-white p-0 m-0 h-[24px]">Urgent</div>
+          {/* Left labels - even smaller, no extra padding */}
+          <div className="flex items-center justify-center h-full w-[24px] p-0 m-0"><span className="font-normal text-xs origin-center rotate-[-90deg] whitespace-nowrap">Important</span></div>
           {QUADRANTS.slice(0, 2).map((q) => (
             <Droppable droppableId={q.key} key={q.key}>
               {(provided, snapshot) => (
@@ -188,7 +188,7 @@ export default function EisenhowerMatrix() {
               )}
             </Droppable>
           ))}
-          <div className="flex items-center justify-center border-t border-l border-gray-300 font-bold text-xl bg-white rotate-[-90deg]">Not Important</div>
+          <div className="flex items-center justify-center h-full w-[24px] p-0 m-0"><span className="font-normal text-xs origin-center rotate-[-90deg] whitespace-nowrap">Not Important</span></div>
           {QUADRANTS.slice(2, 4).map((q) => (
             <Droppable droppableId={q.key} key={q.key}>
               {(provided, snapshot) => (
