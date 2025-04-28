@@ -150,7 +150,7 @@ export default function EisenhowerMatrix() {
   }
 
   return (
-    <div className="w-screen h-screen flex items-stretch justify-stretch bg-white relative">
+    <div className="w-screen h-screen flex items-stretch justify-stretch bg-neutral-50 font-sans relative">
       {showConfetti && (
         <div className="pointer-events-none fixed inset-0 z-50">
           <Confetti width={window.innerWidth} height={window.innerHeight} numberOfPieces={800} gravity={0.8} recycle={false} />
@@ -161,14 +161,14 @@ export default function EisenhowerMatrix() {
         </div>
       )}
       <DragDropContext onDragEnd={onDragEnd}>
-        <div className="grid grid-cols-[24px_1fr_1fr] grid-rows-[24px_1fr_1fr] w-full h-full">
+        <div className="grid grid-cols-[16px_1fr_1fr] grid-rows-[16px_1fr_1fr] w-full h-full gap-2 p-2">
           {/* Top-left empty cell */}
           <div></div>
-          {/* Top headers - even smaller, no extra padding */}
-          <div className="flex items-center justify-center border-b border-l border-gray-300 font-normal text-xs bg-white p-0 m-0 h-[24px]">Not Urgent</div>
-          <div className="flex items-center justify-center border-b border-r border-gray-300 font-normal text-xs bg-white p-0 m-0 h-[24px]">Urgent</div>
-          {/* Left labels - even smaller, no extra padding */}
-          <div className="flex items-center justify-center h-full w-[24px] p-0 m-0"><span className="font-normal text-xs origin-center rotate-[-90deg] whitespace-nowrap">Important</span></div>
+          {/* Top headers - minimal space */}
+          <div className="flex items-center justify-center font-normal text-xs text-gray-500 tracking-wide bg-transparent p-0 m-0 h-[16px]">Not Urgent</div>
+          <div className="flex items-center justify-center font-normal text-xs text-gray-500 tracking-wide bg-transparent p-0 m-0 h-[16px]">Urgent</div>
+          {/* Left labels - minimal space */}
+          <div className="flex items-center justify-center h-full w-[16px] p-0 m-0"><span className="font-normal text-xs text-gray-500 tracking-wide origin-center rotate-[-90deg] whitespace-nowrap">Important</span></div>
           {QUADRANTS.slice(0, 2).map((q) => (
             <Droppable droppableId={q.key} key={q.key}>
               {(provided, snapshot) => (
@@ -188,7 +188,7 @@ export default function EisenhowerMatrix() {
               )}
             </Droppable>
           ))}
-          <div className="flex items-center justify-center h-full w-[24px] p-0 m-0"><span className="font-normal text-xs origin-center rotate-[-90deg] whitespace-nowrap">Not Important</span></div>
+          <div className="flex items-center justify-center h-full w-[16px] p-0 m-0"><span className="font-normal text-xs text-gray-500 tracking-wide origin-center rotate-[-90deg] whitespace-nowrap">Not Important</span></div>
           {QUADRANTS.slice(2, 4).map((q) => (
             <Droppable droppableId={q.key} key={q.key}>
               {(provided, snapshot) => (
