@@ -14,6 +14,8 @@
     "pages:dev": "npm run build && wrangler pages dev dist"
   },
   "dependencies": {
+    "@tsndr/cloudflare-worker-jwt": "^3.1.4",
+    "bcryptjs": "^3.0.2",
     "react": "^18.2.0",
     "react-confetti": "^6.4.0",
     "react-dom": "^18.2.0"
