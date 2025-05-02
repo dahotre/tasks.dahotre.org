@@ -1,92 +1,138 @@
-// Handler for /api/tasks/:id
-function getIdFromUrl(url) {
-  const match = url.pathname.match(/\/tasks\/(\d+)/);
-  return match ? match[1] : null;
-}
+import { getIdFromUrl, createJsonResponse, createErrorResponse } from './utils';
 
+// Handler for /api/tasks/:id
 export async function onRequestGet({ request, env }) {
   const id = getIdFromUrl(new URL(request.url));
+  console.log(`[GET /api/tasks/${id}] Fetching task`);
   if (!id) {
-    return new Response(JSON.stringify({ error: 'Task ID required' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+    console.warn('[GET /api/tasks/:id] Task ID required');
+    return createErrorResponse('Task ID required', null, 400);
   }
+
   try {
-    const { results } = await env.DB.prepare('SELECT * FROM tasks WHERE id = ?').bind(id).all();
-    if (!results.length) {
-      return new Response(JSON.stringify({ error: 'Task not found' }), { status: 404, headers: { 'Content-Type': 'application/json' } });
+    const { results } = await env.DB.prepare(
+      'SELECT * FROM tasks WHERE id = ?'
+    ).bind(id).all();
+
+    if (!results || !results.length) {
+      console.warn(`[GET /api/tasks/${id}] Task not found`);
+      return createErrorResponse('Task not found', null, 404);
     }
-    return new Response(JSON.stringify(results[0]), { status: 200, headers: { 'Content-Type': 'application/json' } });
+
+    console.log(`[GET /api/tasks/${id}] Task found:`, results[0]);
+    return createJsonResponse(results[0]);
   } catch (err) {
-    return new Response(JSON.stringify({ error: 'Failed to fetch task', details: err.message }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+    console.error(`[GET /api/tasks/${id}] Error:`, err);
+    return createErrorResponse('Failed to fetch task', err.message);
   }
 }
 
 export async function onRequestDelete({ request, env }) {
   const id = getIdFromUrl(new URL(request.url));
+  console.log(`[DELETE /api/tasks/${id}] Deleting task`);
   if (!id) {
-    return new Response(JSON.stringify({ error: 'Task ID required' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+    console.warn('[DELETE /api/tasks/:id] Task ID required');
+    return createErrorResponse('Task ID required', null, 400);
   }
+
   try {
-    const result = await env.DB.prepare('DELETE FROM tasks WHERE id = ?').bind(id).run();
-    if (result.changes === 0) {
-      return new Response(JSON.stringify({ error: 'Task not found' }), { status: 404, headers: { 'Content-Type': 'application/json' } });
+    const { results } = await env.DB.prepare(
+      'DELETE FROM tasks WHERE id = ? RETURNING *'
+    ).bind(id).all();
+
+    if (!results || !results.length) {
+      console.warn(`[DELETE /api/tasks/${id}] Task not found`);
+      return createErrorResponse('Task not found', null, 404);
     }
+
+    console.log(`[DELETE /api/tasks/${id}] Task deleted`);
     return new Response(null, { status: 204 });
   } catch (err) {
-    return new Response(JSON.stringify({ error: 'Failed to delete task', details: err.message }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+    console.error(`[DELETE /api/tasks/${id}] Error:`, err);
+    return createErrorResponse('Failed to delete task', err.message);
   }
 }
 
 export async function onRequestPut({ request, env }) {
   const id = getIdFromUrl(new URL(request.url));
+  let data;
+  console.log(`[PUT /api/tasks/${id}] Updating task`);
   if (!id) {
-    return new Response(JSON.stringify({ error: 'Task ID required' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+    console.warn('[PUT /api/tasks/:id] Task ID required');
+    return createErrorResponse('Task ID required', null, 400);
   }
+
   try {
-    const data = await request.json();
-    const { title, due_date, quadrant, completed } = data;
+    data = await request.json();
+    console.log(`[PUT /api/tasks/${id}] Request data:`, data);
+    const { title, quadrant, due_date, completed } = data;
+
     if (!title || !quadrant) {
-      return new Response(JSON.stringify({ error: 'Missing required fields: title and quadrant are required.' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+      console.warn(`[PUT /api/tasks/${id}] Missing required fields:`, data);
+      return createErrorResponse(
+        'Missing required fields: title and quadrant are required.',
+        null,
+        400
+      );
     }
-    const result = await env.DB.prepare('UPDATE tasks SET title = ?, due_date = ?, quadrant = ?, completed = ? WHERE id = ?')
-      .bind(title, due_date, quadrant, completed ? 1 : 0, id).run();
-    if (result.changes === 0) {
-      return new Response(JSON.stringify({ error: 'Task not found' }), { status: 404, headers: { 'Content-Type': 'application/json' } });
+
+    const { results } = await env.DB.prepare(
+      'UPDATE tasks SET title = ?, quadrant = ?, due_date = ?, completed = ? WHERE id = ? RETURNING *'
+    ).bind(title, quadrant, due_date, completed ? 1 : 0, id).all();
+
+    if (!results || !results.length) {
+      console.warn(`[PUT /api/tasks/${id}] Task not found`);
+      return createErrorResponse('Task not found', null, 404);
     }
-    return new Response(JSON.stringify({ message: 'Task updated' }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+
+    console.log(`[PUT /api/tasks/${id}] Task updated:`, results[0]);
+    return createJsonResponse(results[0]);
   } catch (err) {
-    return new Response(JSON.stringify({ error: 'Failed to update task', details: err.message }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+    console.error(`[PUT /api/tasks/${id}] Error:`, err, 'Request data:', data);
+    return createErrorResponse('Failed to update task', err.message);
   }
 }
 
 export async function onRequestPatch({ request, env }) {
   const id = getIdFromUrl(new URL(request.url));
+  let data;
+  console.log(`[PATCH /api/tasks/${id}] Partially updating task`);
   if (!id) {
-    return new Response(JSON.stringify({ error: 'Task ID required' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+    console.warn('[PATCH /api/tasks/:id] Task ID required');
+    return createErrorResponse('Task ID required', null, 400);
   }
+
   try {
-    const data = await request.json();
+    data = await request.json();
+    console.log(`[PATCH /api/tasks/${id}] Request data:`, data);
     const fields = [];
     const values = [];
-    for (const key of ['title', 'due_date', 'quadrant', 'completed']) {
+
+    for (const key of ['title', 'quadrant', 'due_date', 'completed']) {
       if (key in data) {
         fields.push(`${key} = ?`);
-        if (key === 'completed') {
-          values.push(data[key] ? 1 : 0);
-        } else {
-          values.push(data[key]);
-        }
+        values.push(key === 'completed' ? (data[key] ? 1 : 0) : data[key]);
       }
     }
+
     if (fields.length === 0) {
-      return new Response(JSON.stringify({ error: 'No fields to update' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+      console.warn(`[PATCH /api/tasks/${id}] No fields to update`);
+      return createErrorResponse('No fields to update', null, 400);
     }
-    const sql = `UPDATE tasks SET ${fields.join(', ')} WHERE id = ?`;
-    const result = await env.DB.prepare(sql).bind(...values, id).run();
-    if (result.changes === 0) {
-      return new Response(JSON.stringify({ error: 'Task not found' }), { status: 404, headers: { 'Content-Type': 'application/json' } });
+
+    values.push(id); // Add id for WHERE clause
+    const sql = `UPDATE tasks SET ${fields.join(', ')} WHERE id = ? RETURNING *`;
+    const { results } = await env.DB.prepare(sql).bind(...values).all();
+
+    if (!results || !results.length) {
+      console.warn(`[PATCH /api/tasks/${id}] Task not found`);
+      return createErrorResponse('Task not found', null, 404);
     }
-    return new Response(JSON.stringify({ message: 'Task updated' }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+
+    console.log(`[PATCH /api/tasks/${id}] Task updated:`, results[0]);
+    return createJsonResponse(results[0]);
   } catch (err) {
-    return new Response(JSON.stringify({ error: 'Failed to update task', details: err.message }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+    console.error(`[PATCH /api/tasks/${id}] Error:`, err, 'Request data:', data);
+    return createErrorResponse('Failed to update task', err.message);
   }
 } 

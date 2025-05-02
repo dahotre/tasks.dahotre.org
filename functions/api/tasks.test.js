@@ -1,4 +1,5 @@
-import { onRequestGet, onRequestPost, onRequestGetId, onRequestPut, onRequestPatch, onRequestDelete } from './tasks';
+import { onRequestGet, onRequestPost } from './tasks';
+import { onRequestGet as onRequestGetId, onRequestPut, onRequestPatch, onRequestDelete } from './tasks/[id]';
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 
 const mockDB = {
@@ -15,7 +16,7 @@ describe('/api/tasks', () => {
   test('GET returns tasks', async () => {
     const mockResults = { results: [{ id: 1, title: 'Test', due_date: '2025-01-01', quadrant: 'important-urgent', completed: 0 }] };
     mockDB.prepare.mockReturnValue({
-      all: vi.fn().mockResolvedValue(mockResults)
+      bind: vi.fn().mockReturnValue({ all: vi.fn().mockResolvedValue(mockResults) })
     });
 
     const response = await onRequestGet({ env: mockEnv });
@@ -34,9 +35,9 @@ describe('/api/tasks', () => {
   });
 
   test('POST creates a task', async () => {
-    const mockRun = vi.fn().mockResolvedValue({});
+    const mockTask = { id: 1, title: 'New Task', due_date: '2025-01-01', quadrant: 'important-urgent', completed: 0 };
     mockDB.prepare.mockReturnValue({
-      bind: vi.fn().mockReturnValue({ run: mockRun })
+      bind: vi.fn().mockReturnValue({ all: vi.fn().mockResolvedValue({ results: [mockTask] }) })
     });
 
     const request = {
@@ -46,7 +47,7 @@ describe('/api/tasks', () => {
     const response = await onRequestPost({ request, env: mockEnv });
     expect(response.status).toBe(201);
     const data = await response.json();
-    expect(data.message).toBe('Task created');
+    expect(data).toEqual(mockTask);
   });
 
   test('POST validates required fields', async () => {
@@ -62,7 +63,7 @@ describe('/api/tasks', () => {
 
   test('POST handles DB error', async () => {
     mockDB.prepare.mockReturnValue({
-      bind: vi.fn().mockReturnValue({ run: vi.fn().mockRejectedValue(new Error('DB error')) })
+      bind: vi.fn().mockReturnValue({ all: vi.fn().mockRejectedValue(new Error('DB error')) })
     });
 
     const request = {
@@ -82,15 +83,15 @@ describe('/api/tasks/:id', () => {
   });
 
   test('GET by id returns a task', async () => {
-    const mockResults = { results: [{ id: 1, title: 'Test', due_date: '2025-01-01', quadrant: 'important-urgent', completed: 0 }] };
+    const mockTask = { id: 1, title: 'Test', due_date: '2025-01-01', quadrant: 'important-urgent', completed: 0 };
     mockDB.prepare.mockReturnValue({
-      bind: vi.fn().mockReturnValue({ all: vi.fn().mockResolvedValue(mockResults) })
+      bind: vi.fn().mockReturnValue({ all: vi.fn().mockResolvedValue({ results: [mockTask] }) })
     });
     const request = { url: 'http://localhost/api/tasks/1' };
     const response = await onRequestGetId({ request, env: mockEnv });
     expect(response.status).toBe(200);
     const data = await response.json();
-    expect(data).toEqual(mockResults.results[0]);
+    expect(data).toEqual(mockTask);
   });
 
   test('GET by id returns 404 if not found', async () => {
@@ -103,8 +104,9 @@ describe('/api/tasks/:id', () => {
   });
 
   test('PUT updates a task', async () => {
+    const mockTask = { id: 1, title: 'Updated', due_date: '2025-01-01', quadrant: 'important-urgent', completed: 1 };
     mockDB.prepare.mockReturnValue({
-      bind: vi.fn().mockReturnValue({ run: vi.fn().mockResolvedValue({ changes: 1 }) })
+      bind: vi.fn().mockReturnValue({ all: vi.fn().mockResolvedValue({ results: [mockTask] }) })
     });
     const request = {
       url: 'http://localhost/api/tasks/1',
@@ -113,12 +115,12 @@ describe('/api/tasks/:id', () => {
     const response = await onRequestPut({ request, env: mockEnv });
     expect(response.status).toBe(200);
     const data = await response.json();
-    expect(data.message).toBe('Task updated');
+    expect(data).toEqual(mockTask);
   });
 
   test('PUT returns 404 if not found', async () => {
     mockDB.prepare.mockReturnValue({
-      bind: vi.fn().mockReturnValue({ run: vi.fn().mockResolvedValue({ changes: 0 }) })
+      bind: vi.fn().mockReturnValue({ all: vi.fn().mockResolvedValue({ results: [] }) })
     });
     const request = {
       url: 'http://localhost/api/tasks/999',
@@ -129,8 +131,9 @@ describe('/api/tasks/:id', () => {
   });
 
   test('PATCH updates fields of a task', async () => {
+    const mockTask = { id: 1, title: 'Test', due_date: '2025-01-01', quadrant: 'important-urgent', completed: 1 };
     mockDB.prepare.mockReturnValue({
-      bind: vi.fn().mockReturnValue({ run: vi.fn().mockResolvedValue({ changes: 1 }) })
+      bind: vi.fn().mockReturnValue({ all: vi.fn().mockResolvedValue({ results: [mockTask] }) })
     });
     const request = {
       url: 'http://localhost/api/tasks/1',
@@ -139,12 +142,12 @@ describe('/api/tasks/:id', () => {
     const response = await onRequestPatch({ request, env: mockEnv });
     expect(response.status).toBe(200);
     const data = await response.json();
-    expect(data.message).toBe('Task updated');
+    expect(data).toEqual(mockTask);
   });
 
   test('PATCH returns 404 if not found', async () => {
     mockDB.prepare.mockReturnValue({
-      bind: vi.fn().mockReturnValue({ run: vi.fn().mockResolvedValue({ changes: 0 }) })
+      bind: vi.fn().mockReturnValue({ all: vi.fn().mockResolvedValue({ results: [] }) })
     });
     const request = {
       url: 'http://localhost/api/tasks/999',
@@ -156,7 +159,7 @@ describe('/api/tasks/:id', () => {
 
   test('DELETE removes a task', async () => {
     mockDB.prepare.mockReturnValue({
-      bind: vi.fn().mockReturnValue({ run: vi.fn().mockResolvedValue({ changes: 1 }) })
+      bind: vi.fn().mockReturnValue({ all: vi.fn().mockResolvedValue({ results: [{ id: 1 }] }) })
     });
     const request = { url: 'http://localhost/api/tasks/1' };
     const response = await onRequestDelete({ request, env: mockEnv });
@@ -165,7 +168,7 @@ describe('/api/tasks/:id', () => {
 
   test('DELETE returns 404 if not found', async () => {
     mockDB.prepare.mockReturnValue({
-      bind: vi.fn().mockReturnValue({ run: vi.fn().mockResolvedValue({ changes: 0 }) })
+      bind: vi.fn().mockReturnValue({ all: vi.fn().mockResolvedValue({ results: [] }) })
     });
     const request = { url: 'http://localhost/api/tasks/999' };
     const response = await onRequestDelete({ request, env: mockEnv });
