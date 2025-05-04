@@ -100,6 +100,7 @@ export default function EisenhowerMatrix() {
       await fetch("/api/tasks", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           title: task.title,
           due_date: task.due,

@@ -2,10 +2,10 @@ import { createJsonResponse, createErrorResponse } from '../tasks/utils';
 import bcrypt from 'bcryptjs';
 import { sign } from '@tsndr/cloudflare-worker-jwt';
 
-const JWT_SECRET = 'REPLACE_ME_WITH_A_SECRET'; // Set this securely in production
 const JWT_EXPIRES_IN = 60 * 60 * 24 * 7; // 7 days in seconds
 
 export async function onRequestPost({ request, env }) {
+  const JWT_SECRET = env.JWT_SECRET;
   let email;
   try {
     const body = await request.json();
@@ -29,7 +29,11 @@ export async function onRequestPost({ request, env }) {
       return createErrorResponse('Invalid email or password.', null, 401);
     }
     // Create JWT
-    const token = await sign({ id: user.id, email: user.email }, JWT_SECRET, { exp: Math.floor(Date.now() / 1000) + JWT_EXPIRES_IN });
+    console.log('[DEBUG] typeof JWT_SECRET:', typeof JWT_SECRET, 'value:', JWT_SECRET);
+    const payload = { id: user.id, email: user.email, exp: Math.floor(Date.now() / 1000) + JWT_EXPIRES_IN };
+    console.log('[LOGIN] Creating JWT with:', { payload, secret: JWT_SECRET });
+    const token = await sign(payload, JWT_SECRET);
+    console.log('[LOGIN] Created JWT token:', token);
     // Set cookie
     const response = createJsonResponse({ user: { id: user.id, email: user.email } });
     response.headers.set('Set-Cookie', `token=${token}; HttpOnly; Path=/; Max-Age=${JWT_EXPIRES_IN}; SameSite=Strict`);

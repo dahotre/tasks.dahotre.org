@@ -1,30 +1,19 @@
+import { getTokenFromCookie, verifyUserFromRequest } from '../tasks/utils';
 import { createJsonResponse, createErrorResponse } from '../tasks/utils';
 import { verify } from '@tsndr/cloudflare-worker-jwt';
 
-const JWT_SECRET = 'REPLACE_ME_WITH_A_SECRET'; // Set this securely in production
-
-function getTokenFromCookie(request) {
-  const cookie = request.headers.get('cookie') || '';
-  const match = cookie.match(/token=([^;]+)/);
-  return match ? match[1] : null;
-}
-
-export async function onRequestGet({ request }) {
+export async function onRequestGet({ request, env }) {
   try {
-    const token = getTokenFromCookie(request);
-    if (!token) {
-      console.warn('[SESSION] No token in cookie');
-      return createErrorResponse('Not authenticated', null, 401);
+    // Use shared utility for authentication
+    const user = await verifyUserFromRequest(request, env);
+    if (!user) {
+      console.warn('[SESSION] Not authenticated');
+      return new Response(JSON.stringify({ error: 'Not authenticated' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
     }
-    const { payload, valid } = await verify(token, JWT_SECRET);
-    if (!valid) {
-      console.warn('[SESSION] Invalid token');
-      throw new Error('Invalid token');
-    }
-    console.log(`[SESSION] Valid session for user: ${payload.email}`);
-    return createJsonResponse({ user: { id: payload.id, email: payload.email } });
+    console.log(`[SESSION] Valid session for user: ${user.email}`);
+    return new Response(JSON.stringify({ user: { id: user.id, email: user.email } }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   } catch (err) {
     console.error('[SESSION] Error:', err);
-    return createErrorResponse('Not authenticated', err.message, 401);
+    return new Response(JSON.stringify({ error: 'Session error', details: err.message }), { status: 500, headers: { 'Content-Type': 'application/json' } });
   }
-} 
+}

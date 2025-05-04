@@ -1,11 +1,19 @@
-import { createJsonResponse, createErrorResponse } from './tasks/utils';
+import { createJsonResponse, createErrorResponse, getTokenFromCookie, verifyUserFromRequest } from './tasks/utils';
+import { verify } from '@tsndr/cloudflare-worker-jwt';
 
-export async function onRequestGet({ env }) {
-  console.log('[GET /api/tasks] Fetching all tasks');
+export async function onRequestGet({ request, env }) {
+  // Authenticate user
+  const result = await verifyUserFromRequest(request, env);
+  if (!result) {
+    return createErrorResponse('Not authenticated', null, 401);
+  }
+  const user = result.payload;
+  console.log(`[GET /api/tasks] Fetching tasks for user: ${JSON.stringify(user)}`);
+  console.log(`[GET /api/tasks] Fetching tasks for user_id: ${user.id}`);
   try {
     const { results } = await env.DB.prepare(
-      'SELECT * FROM tasks ORDER BY due_date ASC'
-    ).bind().all();
+      'SELECT * FROM tasks WHERE user_id = ? ORDER BY due_date ASC'
+    ).bind(user.id).all();
     console.log(`[GET /api/tasks] Fetched ${results.length} tasks`);
     return createJsonResponse(results);
   } catch (err) {
@@ -30,9 +38,28 @@ export async function onRequestPost({ request, env }) {
       );
     }
 
-    const { results } = await env.DB.prepare(
-      'INSERT INTO tasks (title, quadrant, due_date) VALUES (?, ?, ?) RETURNING *'
-    ).bind(title, quadrant, due_date).all();
+    // Extract user_id from JWT in cookie using shared logic
+    const result = await verifyUserFromRequest(request, env);
+    if (!result) {
+      return createErrorResponse('Not authenticated', 'Invalid token', 401);
+    }
+    const user_id = result.payload.id;
+
+    // Debug log for DB insert values
+    console.log('[POST /api/tasks] About to insert with:', {
+      title, quadrant, due_date, user_id,
+      types: {
+        title: typeof title,
+        quadrant: typeof quadrant,
+        due_date: typeof due_date,
+        user_id: typeof user_id,
+      }
+    });
+    const sql = 'INSERT INTO tasks (title, quadrant, due_date, user_id) VALUES (?, ?, ?, ?) RETURNING *';
+    console.log('[POST /api/tasks] SQL:', sql);
+
+    const { results } = await env.DB.prepare(sql)
+      .bind(title, quadrant, due_date, user_id).all();
     console.log('[POST /api/tasks] Task created:', results[0]);
     return createJsonResponse(results[0], 201);
   } catch (err) {

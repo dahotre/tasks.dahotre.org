@@ -103,10 +103,11 @@ describe('/api/auth/login', () => {
 });
 
 describe('/api/auth/session', () => {
+  const sessionEnv = { JWT_SECRET: 'test-secret' };
   test('returns user if JWT is valid in cookie', async () => {
-    verify.mockResolvedValue({ payload: { id: 1, email: 'a@b.com' }, valid: true });
+    verify.mockResolvedValue({ id: 1, email: 'a@b.com' });
     const request = { headers: { get: (h) => h === 'cookie' ? 'token=valid.jwt.token' : '' } };
-    const response = await session({ request });
+    const response = await session({ request, env: sessionEnv });
     expect(response.status).toBe(200);
     const data = await response.json();
     expect(data.user).toEqual({ id: 1, email: 'a@b.com' });
@@ -114,16 +115,16 @@ describe('/api/auth/session', () => {
 
   test('returns 401 if no cookie', async () => {
     const request = { headers: { get: () => '' } };
-    const response = await session({ request });
+    const response = await session({ request, env: sessionEnv });
     expect(response.status).toBe(401);
     const data = await response.json();
     expect(data.error).toMatch(/not authenticated/i);
   });
 
   test('returns 401 if JWT is invalid', async () => {
-    verify.mockResolvedValue({ payload: {}, valid: false });
+    verify.mockResolvedValue(false);
     const request = { headers: { get: (h) => h === 'cookie' ? 'token=bad.jwt.token' : '' } };
-    const response = await session({ request });
+    const response = await session({ request, env: sessionEnv });
     expect(response.status).toBe(401);
     const data = await response.json();
     expect(data.error).toMatch(/not authenticated/i);
