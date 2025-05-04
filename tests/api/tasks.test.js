@@ -1,5 +1,5 @@
-import { onRequestGet, onRequestPost } from './tasks';
-import { onRequestGet as onRequestGetId, onRequestPut, onRequestPatch, onRequestDelete } from './tasks/[id]';
+import { onRequestGet, onRequestPost } from '../../functions/api/tasks.js';
+import { onRequestGet as onRequestGetId, onRequestPut, onRequestPatch, onRequestDelete } from '../../functions/api/tasks/[id].js';
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { verify } from '@tsndr/cloudflare-worker-jwt';
 

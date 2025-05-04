@@ -10,9 +10,8 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "vitest run --exclude functions/api",
-    "test:all": "vitest run",
-    "pages:dev": "npm run test:all && npm run build && wrangler pages dev dist"
+    "test": "vitest run",
+    "pages:dev": "npm run build && wrangler pages dev dist"
   },
   "dependencies": {
     "@tsndr/cloudflare-worker-jwt": "^3.1.4",

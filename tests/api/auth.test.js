@@ -1,8 +1,8 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
-import { onRequestPost as register } from './auth/register';
-import { onRequestPost as login } from './auth/login';
-import { onRequestGet as session } from './auth/session';
-import { onRequestPost as logout } from './auth/logout';
+import { onRequestPost as register } from '../../functions/api/auth/register.js';
+import { onRequestPost as login } from '../../functions/api/auth/login.js';
+import { onRequestGet as session } from '../../functions/api/auth/session.js';
+import { onRequestPost as logout } from '../../functions/api/auth/logout.js';
 import bcrypt from 'bcryptjs';
 import { sign, verify } from '@tsndr/cloudflare-worker-jwt';
 
