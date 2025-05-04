@@ -6,7 +6,7 @@
   "scripts": {
     "predev": "vitest run",
     "dev": "vite",
-    "prebuild": "vitest run",
+    "prebuild": "if [ \"$SKIP_TESTS\" != \"true\" ]; then vitest run; fi",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
