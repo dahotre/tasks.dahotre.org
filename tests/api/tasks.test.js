@@ -94,7 +94,7 @@ describe('/api/tasks', () => {
   });
 });
 
-describe.skip('/api/tasks/:id', () => {
+describe('/api/tasks/:id', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
