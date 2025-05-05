@@ -105,7 +105,7 @@ describe('/api/auth/login', () => {
 describe('/api/auth/session', () => {
   const sessionEnv = { JWT_SECRET: 'test-secret' };
   test('returns user if JWT is valid in cookie', async () => {
-    verify.mockResolvedValue({ id: 1, email: 'a@b.com' });
+    verify.mockResolvedValue({ payload: { id: 1, email: 'a@b.com' } });
     const request = { headers: { get: (h) => h === 'cookie' ? 'token=valid.jwt.token' : '' } };
     const response = await session({ request, env: sessionEnv });
     expect(response.status).toBe(200);

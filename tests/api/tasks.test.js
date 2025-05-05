@@ -100,13 +100,11 @@ describe('/api/tasks/:id', () => {
   });
 
   test('GET by id returns a task', async () => {
-    verify.mockResolvedValue({ id: 42 });
+    verify.mockResolvedValue({ payload: { id: 42 } });
     const mockTask = { id: 1, title: 'Test', due_date: '2025-01-01', quadrant: 'important-urgent', completed: 0, user_id: 42 };
     mockDB.prepare.mockReturnValue({
       bind: vi.fn().mockReturnValue({
-        all: vi.fn()
-          .mockResolvedValueOnce({ results: [{ user_id: 42 }] }) // ownership check
-          .mockResolvedValueOnce({ results: [mockTask] }) // fetch result
+        all: vi.fn().mockResolvedValue({ results: [mockTask] })
       })
     });
     const request = mockRequestWithHeaders({ url: 'http://localhost/api/tasks/1' });
@@ -117,7 +115,7 @@ describe('/api/tasks/:id', () => {
   });
 
   test('GET by id returns 404 if not found', async () => {
-    verify.mockResolvedValue({ id: 42 });
+    verify.mockResolvedValue({ payload: { id: 42 } });
     mockDB.prepare.mockReturnValue({
       bind: vi.fn().mockReturnValue({ all: vi.fn().mockResolvedValue({ results: [] }) })
     });
@@ -127,7 +125,7 @@ describe('/api/tasks/:id', () => {
   });
 
   test('PUT updates a task', async () => {
-    verify.mockResolvedValue({ id: 42 });
+    verify.mockResolvedValue({ payload: { id: 42 } });
     const mockTask = { id: 1, title: 'Updated', due_date: '2025-01-01', quadrant: 'important-urgent', completed: 1, user_id: 42 };
     mockDB.prepare.mockReturnValue({
       bind: vi.fn().mockReturnValue({
@@ -147,7 +145,7 @@ describe('/api/tasks/:id', () => {
   });
 
   test('PUT returns 404 if not found', async () => {
-    verify.mockResolvedValue({ id: 42 });
+    verify.mockResolvedValue({ payload: { id: 42 } });
     mockDB.prepare.mockReturnValue({
       bind: vi.fn().mockReturnValue({ all: vi.fn().mockResolvedValue({ results: [] }) })
     });
@@ -160,7 +158,7 @@ describe('/api/tasks/:id', () => {
   });
 
   test('PATCH updates fields of a task', async () => {
-    verify.mockResolvedValue({ id: 42 });
+    verify.mockResolvedValue({ payload: { id: 42 } });
     const mockTask = { id: 1, title: 'Test', due_date: '2025-01-01', quadrant: 'important-urgent', completed: 1, user_id: 42 };
     mockDB.prepare.mockReturnValue({
       bind: vi.fn().mockReturnValue({
@@ -180,7 +178,7 @@ describe('/api/tasks/:id', () => {
   });
 
   test('PATCH returns 404 if not found', async () => {
-    verify.mockResolvedValue({ id: 42 });
+    verify.mockResolvedValue({ payload: { id: 42 } });
     mockDB.prepare.mockReturnValue({
       bind: vi.fn().mockReturnValue({ all: vi.fn().mockResolvedValue({ results: [] }) })
     });
@@ -193,7 +191,7 @@ describe('/api/tasks/:id', () => {
   });
 
   test('DELETE removes a task', async () => {
-    verify.mockResolvedValue({ id: 42 });
+    verify.mockResolvedValue({ payload: { id: 42 } });
     mockDB.prepare.mockReturnValue({
       bind: vi.fn().mockReturnValue({
         all: vi.fn()
@@ -207,7 +205,7 @@ describe('/api/tasks/:id', () => {
   });
 
   test('DELETE returns 404 if not found', async () => {
-    verify.mockResolvedValue({ id: 42 });
+    verify.mockResolvedValue({ payload: { id: 42 } });
     mockDB.prepare.mockReturnValue({
       bind: vi.fn().mockReturnValue({ all: vi.fn().mockResolvedValue({ results: [] }) })
     });
