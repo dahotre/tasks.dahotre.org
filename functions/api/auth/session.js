@@ -5,11 +5,12 @@ import { verify } from '@tsndr/cloudflare-worker-jwt';
 export async function onRequestGet({ request, env }) {
   try {
     // Use shared utility for authentication
-    const user = await verifyUserFromRequest(request, env);
-    if (!user) {
+    const result = await verifyUserFromRequest(request, env);
+    if (!result) {
       console.warn('[SESSION] Not authenticated');
       return new Response(JSON.stringify({ error: 'Not authenticated' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
     }
+    const user = result.payload;
     console.log(`[SESSION] Valid session for user: ${user.email}`);
     return new Response(JSON.stringify({ user: { id: user.id, email: user.email } }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   } catch (err) {
