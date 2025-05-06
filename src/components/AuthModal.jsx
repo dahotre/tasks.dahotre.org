@@ -41,7 +41,7 @@ function AuthModal({ mode, onClose, onAuthSuccess }) {
         <h2 className="text-base font-semibold mb-4 text-gray-800 tracking-wide">{authMode === 'login' ? 'Login' : 'Register'}</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="auth-email" className="block text-[10px] font-medium mb-1 text-gray-500">Email</label>
+            <label htmlFor="auth-email" className="block text-xs font-medium mb-1 text-gray-500">Email</label>
             <input
               id="auth-email"
               type="email"
@@ -49,12 +49,12 @@ function AuthModal({ mode, onClose, onAuthSuccess }) {
               value={email}
               onChange={e => setEmail(e.target.value)}
               required
-              className="w-full rounded-xl px-3 py-1.5 bg-gray-100 text-gray-800 text-[10px] placeholder-gray-400 placeholder:text-[10px] focus:outline-none focus:ring-2 focus:ring-blue-300 transition"
+              className="w-full rounded-xl px-3 py-2 bg-gray-100 text-gray-800 text-base placeholder-gray-400 placeholder:text-base focus:outline-none focus:ring-2 focus:ring-blue-300 transition"
               autoFocus
             />
           </div>
           <div>
-            <label htmlFor="auth-password" className="block text-[10px] font-medium mb-1 text-gray-500">Password</label>
+            <label htmlFor="auth-password" className="block text-xs font-medium mb-1 text-gray-500">Password</label>
             <input
               id="auth-password"
               type="password"
@@ -62,7 +62,7 @@ function AuthModal({ mode, onClose, onAuthSuccess }) {
               value={password}
               onChange={e => setPassword(e.target.value)}
               required
-              className="w-full rounded-xl px-3 py-1.5 bg-gray-100 text-gray-800 text-[10px] placeholder-gray-400 placeholder:text-[10px] focus:outline-none focus:ring-2 focus:ring-blue-300 transition"
+              className="w-full rounded-xl px-3 py-2 bg-gray-100 text-gray-800 text-base placeholder-gray-400 placeholder:text-base focus:outline-none focus:ring-2 focus:ring-blue-300 transition"
             />
           </div>
           {error && <div className="text-red-600 text-xs mt-1">{error}</div>}

@@ -71,10 +71,10 @@ export default function TaskModal({
           className="space-y-4"
         >
           <div>
-            <label htmlFor="task-title" className="block text-[10px] font-medium mb-1 text-gray-500">Task</label>
+            <label htmlFor="task-title" className="block text-xs font-medium mb-1 text-gray-500">Task</label>
             <input
               id="task-title"
-              className="w-full rounded-xl px-3 py-1.5 bg-gray-100 text-gray-800 text-[10px] placeholder-gray-400 placeholder:text-[10px] focus:outline-none focus:ring-2 focus:ring-blue-300 transition"
+              className="w-full rounded-xl px-3 py-2 bg-gray-100 text-gray-800 text-base placeholder-gray-400 placeholder:text-base focus:outline-none focus:ring-2 focus:ring-blue-300 transition"
               value={title}
               onChange={e => setTitle(e.target.value)}
               required
@@ -83,20 +83,20 @@ export default function TaskModal({
             />
           </div>
           <div>
-            <label htmlFor="task-due" className="block text-[10px] font-medium mb-1 text-gray-500">Due Date</label>
+            <label htmlFor="task-due" className="block text-xs font-medium mb-1 text-gray-500">Due Date</label>
             <input
               id="task-due"
               type="date"
-              className="w-full rounded-xl px-3 py-1.5 bg-gray-100 text-gray-800 text-[10px] placeholder-gray-400 placeholder:text-[10px] focus:outline-none focus:ring-2 focus:ring-blue-300 transition"
+              className="w-full rounded-xl px-3 py-2 bg-gray-100 text-gray-800 text-base placeholder-gray-400 placeholder:text-base focus:outline-none focus:ring-2 focus:ring-blue-300 transition"
               value={due}
               onChange={e => setDue(e.target.value)}
             />
           </div>
           <div>
-            <label htmlFor="task-quadrant" className="block text-[10px] font-medium mb-1 text-gray-500">Quadrant</label>
+            <label htmlFor="task-quadrant" className="block text-xs font-medium mb-1 text-gray-500">Quadrant</label>
             <select
               id="task-quadrant"
-              className="w-full rounded-xl px-3 py-1.5 bg-gray-100 text-gray-800 text-[10px] focus:outline-none focus:ring-2 focus:ring-blue-300 transition"
+              className="w-full rounded-xl px-3 py-2 bg-gray-100 text-gray-800 text-base focus:outline-none focus:ring-2 focus:ring-blue-300 transition"
               value={quadrant}
               onChange={e => setQuadrant(e.target.value)}
               required
