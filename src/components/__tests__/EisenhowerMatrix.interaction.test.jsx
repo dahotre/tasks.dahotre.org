@@ -24,7 +24,7 @@ describe('EisenhowerMatrix interactions', () => {
     render(<EisenhowerMatrix />);
     const addButtons = screen.getAllByRole('button', { name: /add task/i });
     await act(async () => { fireEvent.click(addButtons[0]); });
-    const input = screen.getByPlaceholderText('Enter task description');
+    const input = screen.getByPlaceholderText('Enter task');
     await act(async () => { fireEvent.change(input, { target: { value: 'New Task' } }); });
     const saveButton = screen.getByRole('button', { name: /save/i });
     await act(async () => { fireEvent.click(saveButton); });
@@ -35,13 +35,13 @@ describe('EisenhowerMatrix interactions', () => {
     render(<EisenhowerMatrix />);
     const addButtons = screen.getAllByRole('button', { name: /add task/i });
     await act(async () => { fireEvent.click(addButtons[0]); });
-    const input = screen.getByPlaceholderText('Enter task description');
+    const input = screen.getByPlaceholderText('Enter task');
     await act(async () => { fireEvent.change(input, { target: { value: 'Editable Task' } }); });
     const saveButton = screen.getByRole('button', { name: /save/i });
     await act(async () => { fireEvent.click(saveButton); });
     const task = await screen.findByText('Editable Task');
     await act(async () => { fireEvent.click(task); });
-    const editInput = screen.getByPlaceholderText('Enter task description');
+    const editInput = screen.getByPlaceholderText('Enter task');
     await act(async () => { fireEvent.change(editInput, { target: { value: 'Edited Task' } }); });
     await act(async () => { fireEvent.click(screen.getByRole('button', { name: /save/i })); });
     expect(await screen.findByText('Edited Task')).toBeInTheDocument();
@@ -52,7 +52,7 @@ describe('EisenhowerMatrix interactions', () => {
     // Add a new task
     const addButtons = screen.getAllByRole('button', { name: /add task/i });
     await act(async () => { fireEvent.click(addButtons[0]); });
-    const input = screen.getByPlaceholderText('Enter task description');
+    const input = screen.getByPlaceholderText('Enter task');
     await act(async () => { fireEvent.change(input, { target: { value: 'Task to Delete' } }); });
     await act(async () => { fireEvent.click(screen.getByRole('button', { name: /save/i })); });
 

@@ -41,7 +41,7 @@ describe('TaskModal', () => {
         defaultQuadrant="important-urgent"
       />
     );
-    fireEvent.change(screen.getByPlaceholderText('Enter task description'), { target: { value: 'Test Task' } });
+    fireEvent.change(screen.getByPlaceholderText('Enter task'), { target: { value: 'Test Task' } });
     fireEvent.change(screen.getByLabelText(/due date/i), { target: { value: '2025-01-01' } });
     fireEvent.change(screen.getByLabelText(/quadrant/i), { target: { value: 'important-urgent' } });
     fireEvent.click(screen.getByRole('button', { name: /save/i }));

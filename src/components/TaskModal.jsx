@@ -78,7 +78,7 @@ export default function TaskModal({
               value={title}
               onChange={e => setTitle(e.target.value)}
               required
-              placeholder="Enter task description"
+              placeholder="Enter task"
               autoComplete="off"
             />
           </div>
