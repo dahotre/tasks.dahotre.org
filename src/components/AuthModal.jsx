@@ -6,6 +6,7 @@ function AuthModal({ mode, onClose, onAuthSuccess }) {
   const [authMode, setAuthMode] = useState(mode || 'login'); // 'login' or 'register'
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -55,15 +56,32 @@ function AuthModal({ mode, onClose, onAuthSuccess }) {
           </div>
           <div>
             <label htmlFor="auth-password" className="block text-xs font-medium mb-1 text-gray-500">Password</label>
-            <input
-              id="auth-password"
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              required
-              className="w-full rounded-xl px-3 py-2 bg-gray-100 text-gray-800 text-base placeholder-gray-400 placeholder:text-base focus:outline-none focus:ring-2 focus:ring-blue-300 transition"
-            />
+            <div className="relative">
+              <input
+                id="auth-password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                required
+                className="w-full rounded-xl px-3 py-2 bg-gray-100 text-gray-800 text-base placeholder-gray-400 placeholder:text-base focus:outline-none focus:ring-2 focus:ring-blue-300 transition pr-10"
+              />
+              <button
+                type="button"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                onClick={() => setShowPassword(v => !v)}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 focus:outline-none bg-transparent shadow-none border-0 p-0"
+                tabIndex={0}
+              >
+                {showPassword ? (
+                  // Eye-off icon
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4.477-10-10 0-1.657.403-3.22 1.125-4.575m2.122-2.122A9.956 9.956 0 0112 3c5.523 0 10 4.477 10 10 0 1.657-.403 3.22-1.125 4.575m-2.122 2.122A9.956 9.956 0 0112 21c-2.21 0-4.267-.72-5.947-1.947m0 0L3 21m0 0l2.053-2.053" /></svg>
+                ) : (
+                  // Eye icon
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0zm7.5 0a9.77 9.77 0 01-1.5 3.5c-1.5 2.5-4.5 5.5-9 5.5s-7.5-3-9-5.5A9.77 9.77 0 011.5 12c1.5-2.5 4.5-5.5 9-5.5s7.5 3 9 5.5z" /></svg>
+                )}
+              </button>
+            </div>
           </div>
           {error && <div className="text-red-600 text-xs mt-1">{error}</div>}
           <button
