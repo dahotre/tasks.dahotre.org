@@ -27,10 +27,12 @@ describe('/api/auth/register', () => {
       bind: vi.fn().mockReturnValue({ all: vi.fn().mockResolvedValue({ results: [{ id: 1, email: 'a@b.com' }] }) })
     })); // Inserted user
     bcrypt.hash.mockResolvedValue('hashedpw');
+    sign.mockResolvedValue('jwt-token');
 
     const request = { json: async () => ({ email: 'a@b.com', password: 'pw' }) };
     const response = await register({ request, env: mockEnv });
     expect(response.status).toBe(201);
+    expect(response.headers.get('Set-Cookie')).toMatch(/token=jwt-token/);
     const data = await response.json();
     expect(data.user).toEqual({ id: 1, email: 'a@b.com' });
   });
