@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Quadrant from "./Quadrant";
 import TaskModal from "./TaskModal";
 import Confetti from "react-confetti";
+import CompletedTasksModal from "./CompletedTasksModal";
 
 const QUADRANTS = [
   {
@@ -62,6 +63,7 @@ export default function EisenhowerMatrix() {
   const [modal, setModal] = useState({ open: false, mode: "add", task: null, quadrant: null });
   const [showConfetti, setShowConfetti] = useState(false);
   const [fadeConfetti, setFadeConfetti] = useState(false);
+  const [completedModal, setCompletedModal] = useState({ open: false, tasks: [], quadrant: null });
 
   // Fetch all tasks on mount
   useEffect(() => {
@@ -171,6 +173,7 @@ export default function EisenhowerMatrix() {
             completedCount={tasks[q.key]?.filter(t => t.completed).length || 0}
             onAdd={() => handleAdd(q.key)}
             onTaskClick={(task) => handleEdit(task, q.key)}
+            onShowCompleted={() => setCompletedModal({ open: true, tasks: (tasks[q.key] || []).filter(t => t.completed), quadrant: q.key })}
           />
         ))}
         <div className="flex items-center justify-center h-full w-[10px]"><span className="font-normal text-[10px] text-gray-500 tracking-wide origin-center rotate-[-90deg] whitespace-nowrap">Not Important</span></div>
@@ -183,6 +186,7 @@ export default function EisenhowerMatrix() {
             completedCount={tasks[q.key]?.filter(t => t.completed).length || 0}
             onAdd={() => handleAdd(q.key)}
             onTaskClick={(task) => handleEdit(task, q.key)}
+            onShowCompleted={() => setCompletedModal({ open: true, tasks: (tasks[q.key] || []).filter(t => t.completed), quadrant: q.key })}
           />
         ))}
       </div>
@@ -196,6 +200,12 @@ export default function EisenhowerMatrix() {
         initialTask={modal.mode === 'add' ? {} : modal.task}
         mode={modal.mode}
         defaultQuadrant={modal.quadrant}
+      />
+      <CompletedTasksModal
+        open={completedModal.open}
+        tasks={completedModal.tasks}
+        onClose={() => setCompletedModal({ open: false, tasks: [], quadrant: null })}
+        quadrant={completedModal.quadrant}
       />
     </div>
   );
