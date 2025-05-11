@@ -1,4 +1,6 @@
-import { verify } from '@tsndr/cloudflare-worker-jwt';
+import { verify, sign } from '@tsndr/cloudflare-worker-jwt';
+
+const JWT_EXPIRES_IN = 60 * 60 * 24 * 7; // 7 days in seconds
 
 export function getIdFromUrl(url) {
   const match = url.pathname.match(/\/tasks\/(\d+)/);
@@ -37,4 +39,13 @@ export async function verifyUserFromRequest(request, env) {
     return null;
   }
   return payload;
+}
+
+export async function issueJwtAndSetCookie({ user, env, status = 200, responseData = null }) {
+  const JWT_SECRET = env.JWT_SECRET;
+  const payload = { id: user.id, email: user.email, exp: Math.floor(Date.now() / 1000) + JWT_EXPIRES_IN };
+  const token = await sign(payload, JWT_SECRET);
+  const response = createJsonResponse(responseData || { user: { id: user.id, email: user.email } }, status);
+  response.headers.set('Set-Cookie', `token=${token}; HttpOnly; Path=/; Max-Age=${JWT_EXPIRES_IN}; SameSite=Strict`);
+  return response;
 } 

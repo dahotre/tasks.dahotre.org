@@ -1,4 +1,4 @@
-import { createJsonResponse, createErrorResponse } from '../tasks/utils';
+import { createJsonResponse, createErrorResponse, issueJwtAndSetCookie } from '../tasks/utils';
 import bcrypt from 'bcryptjs';
 
 export async function onRequestPost({ request, env }) {
@@ -22,7 +22,8 @@ export async function onRequestPost({ request, env }) {
     // Insert user
     const { results } = await env.DB.prepare('INSERT INTO users (email, password_hash) VALUES (?, ?) RETURNING id, email').bind(email, password_hash).all();
     console.log(`[REGISTER] User registered: ${email}`);
-    return createJsonResponse({ user: results[0] }, 201);
+    // Issue JWT and set cookie, with 201 status
+    return await issueJwtAndSetCookie({ user: results[0], env, status: 201 });
   } catch (err) {
     console.error(`[REGISTER] Error for email ${email}:`, err);
     return createErrorResponse('Failed to register user', err.message);
