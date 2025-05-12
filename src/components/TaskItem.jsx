@@ -2,10 +2,11 @@ import React from "react";
 
 function formatDue(due) {
   if (!due) return null;
-  const d = new Date(due);
-  const mm = String(d.getMonth() + 1).padStart(2, '0');
-  const dd = String(d.getDate()).padStart(2, '0');
-  return `${mm}/${dd}`;
+  console.log('input due', due);
+  // If due is in 'YYYY-MM-DD' format, split it
+  const [year, month, day] = due.split('-');
+  console.log('formatted due', `${month}/${day}`);
+  return `${month}/${day}`;
 }
 
 function getDueColor(due) {

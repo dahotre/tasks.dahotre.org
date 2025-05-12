@@ -103,7 +103,7 @@ export async function onRequestPut({ request, env }) {
       );
     }
     const { results } = await env.DB.prepare(
-      'UPDATE tasks SET title = ?, quadrant = ?, due_date = ?, completed = ? WHERE id = ? RETURNING *'
+      'UPDATE tasks SET title = ?, quadrant = ?, due_date = ?, completed = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? RETURNING *'
     ).bind(title, quadrant, due_date, completed ? 1 : 0, id).all();
     if (!results || !results.length) {
       console.warn(`[PUT /api/tasks/${id}] Task not found`);
@@ -151,6 +151,7 @@ export async function onRequestPatch({ request, env }) {
       console.warn(`[PATCH /api/tasks/${id}] No fields to update`);
       return createErrorResponse('No fields to update', null, 400);
     }
+    fields.push('updated_at = CURRENT_TIMESTAMP');
     values.push(id); // Add id for WHERE clause
     const sql = `UPDATE tasks SET ${fields.join(', ')} WHERE id = ? RETURNING *`;
     const { results } = await env.DB.prepare(sql).bind(...values).all();
