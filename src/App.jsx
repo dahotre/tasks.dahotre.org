@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import EisenhowerMatrix from "./components/EisenhowerMatrix";
 import AuthModal from "./components/AuthModal";
+import LandingPage from "./components/LandingPage";
 
 function Logo() {
   // Inline SVG from favicon.svg
@@ -65,6 +66,7 @@ function HeaderMenu({ email, onSignOut }) {
 function App() {
   const [user, setUser] = useState(null);
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [authMode, setAuthMode] = useState('login');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -77,7 +79,6 @@ function App() {
       })
       .catch(() => {
         setUser(null);
-        setAuthModalOpen(true);
         setLoading(false);
       });
   }, []);
@@ -86,8 +87,17 @@ function App() {
     fetch("/api/auth/logout", { method: "POST", credentials: "include" })
       .then(() => {
         setUser(null);
-        setAuthModalOpen(true);
       });
+  }
+
+  function handleLogin() {
+    setAuthMode('login');
+    setAuthModalOpen(true);
+  }
+
+  function handleRegister() {
+    setAuthMode('register');
+    setAuthModalOpen(true);
   }
 
   if (loading) return null; // or a loading spinner
@@ -96,7 +106,7 @@ function App() {
     <>
       {authModalOpen && (
         <AuthModal
-          mode="login"
+          mode={authMode}
           onClose={() => setAuthModalOpen(false)}
           onAuthSuccess={user => {
             setUser(user);
@@ -104,7 +114,7 @@ function App() {
           }}
         />
       )}
-      {user && (
+      {user ? (
         <>
           <header className="flex items-center justify-between px-6 py-1.5 bg-neutral-50 shadow h-14">
             <Logo />
@@ -112,6 +122,8 @@ function App() {
           </header>
           <EisenhowerMatrix user={user} />
         </>
+      ) : (
+        <LandingPage onLoginClick={handleLogin} onRegisterClick={handleRegister} />
       )}
     </>
   );

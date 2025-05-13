@@ -55,11 +55,15 @@ export async function onRequestPost({ request, env }) {
         user_id: typeof user_id,
       }
     });
+    
+    // Handle undefined due_date by using null (D1 doesn't support undefined values)
+    const due_date_value = due_date === undefined ? null : due_date;
+    
     const sql = 'INSERT INTO tasks (title, quadrant, due_date, user_id) VALUES (?, ?, ?, ?) RETURNING *';
     console.log('[POST /api/tasks] SQL:', sql);
 
     const { results } = await env.DB.prepare(sql)
-      .bind(title, quadrant, due_date, user_id).all();
+      .bind(title, quadrant, due_date_value, user_id).all();
     console.log('[POST /api/tasks] Task created:', results[0]);
     return createJsonResponse(results[0], 201);
   } catch (err) {
