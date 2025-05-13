@@ -84,7 +84,7 @@ export default function LandingPage({ onLoginClick, onRegisterClick }) {
           </div>
           <button
             onClick={onLoginClick}
-            className="border border-blue-600 text-blue-700 font-semibold px-5 py-2 rounded-xl transition-all hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-400 text-base shadow-sm"
+            className="bg-white border border-blue-600 text-blue-700 font-semibold px-5 py-2 rounded-xl transition-all hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-400 text-base shadow-sm"
             aria-label="Sign in"
           >
             Sign In
