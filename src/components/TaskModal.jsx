@@ -109,14 +109,14 @@ export default function TaskModal({
           <div className="flex justify-end gap-2 mt-6">
             <button
               type="button"
-              className="px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 font-medium text-[10px] hover:bg-gray-200 transition shadow-none"
+              className="px-3.5 py-1.5 rounded-full bg-gray-100 text-gray-600 font-medium text-base hover:bg-gray-200 transition shadow-none"
               onClick={onClose}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-3 py-1.5 rounded-full bg-blue-500 text-white font-semibold text-[10px] hover:bg-blue-600 transition shadow-none"
+              className="px-3.5 py-1.5 rounded-full bg-blue-500 text-white font-semibold text-base hover:bg-blue-600 transition shadow-none"
             >
               Save
             </button>
@@ -125,13 +125,13 @@ export default function TaskModal({
         {mode === "edit" && (
           <div className="flex justify-end gap-2 mt-3">
             <button
-              className="px-3 py-1.5 rounded-full border border-green-300 text-green-700 font-medium text-[10px] bg-white hover:bg-green-50 transition shadow-none"
+              className="px-3.5 py-1.5 rounded-full border border-green-300 text-green-700 font-medium text-base bg-white hover:bg-green-50 transition shadow-none"
               onClick={onComplete}
             >
               ✓ Complete
             </button>
             <button
-              className="px-3 py-1.5 rounded-full border border-red-300 text-red-700 font-medium text-[10px] bg-white hover:bg-red-50 transition shadow-none"
+              className="px-3.5 py-1.5 rounded-full border border-red-300 text-red-700 font-medium text-base bg-white hover:bg-red-50 transition shadow-none"
               onClick={onDelete}
             >
               Delete
