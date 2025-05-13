@@ -25,7 +25,7 @@ export default function TaskItem({ task, onClick }) {
   const isCompleted = task.completed;
   return (
     <div
-      className={`flex items-center px-2 py-1.5 rounded-xl cursor-pointer transition-all duration-200 font-sans bg-transparent hover:bg-white/60 hover:shadow-md hover:scale-[1.03] ${isCompleted ? 'text-gray-400 line-through opacity-60' : 'text-gray-800'} select-none`}
+      className={`flex items-center px-2 py-1.5 mx-0.5 rounded-xl cursor-pointer transition-all duration-150 font-sans bg-transparent hover:bg-white/80 focus:outline-none focus:ring-2 focus:ring-blue-200 ${isCompleted ? 'text-gray-400 line-through opacity-60' : 'text-gray-800'} select-none`}
       onClick={onClick}
       tabIndex={0}
       role="button"

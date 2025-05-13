@@ -15,7 +15,7 @@ export default function Quadrant({
   const visibleTasks = tasks.filter(t => !t.completed);
   return (
     <div
-      className={`relative flex flex-col h-full w-full ${color} backdrop-blur-xl border border-gray-200 rounded-2xl shadow-lg p-3 transition-all duration-300 overflow-hidden`}
+      className={`relative flex flex-col h-full w-full ${color} backdrop-blur-xl border border-gray-200 rounded-2xl shadow-lg p-3 transition-all duration-300`}
     >
       {/* Completed tasks counter badge, now a button */}
       <button
