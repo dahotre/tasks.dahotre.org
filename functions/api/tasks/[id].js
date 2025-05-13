@@ -102,9 +102,12 @@ export async function onRequestPut({ request, env }) {
         400
       );
     }
+    // Handle undefined due_date by using null (D1 doesn't support undefined values)
+    const due_date_value = due_date === undefined ? null : due_date;
+
     const { results } = await env.DB.prepare(
       'UPDATE tasks SET title = ?, quadrant = ?, due_date = ?, completed = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? RETURNING *'
-    ).bind(title, quadrant, due_date, completed ? 1 : 0, id).all();
+    ).bind(title, quadrant, due_date_value, completed ? 1 : 0, id).all();
     if (!results || !results.length) {
       console.warn(`[PUT /api/tasks/${id}] Task not found`);
       return createErrorResponse('Task not found', null, 404);
